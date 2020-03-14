@@ -91,8 +91,9 @@ const SecondPage = () => {
         .map(province => <option key={province}>{province}</option>);
 
     const _handlePrimaryProvinceChange = e => {
-        setPrimaryProvince(e.target.value);
-        curatePrimaryChartData({ country: primaryCountry, province: e.target.value, metric: primaryMetric, totals: primaryTotals });
+        const val = e.target.value === 'All' ? null : e.target.value;
+        setPrimaryProvince(val);
+        curatePrimaryChartData({ country: primaryCountry, province: val, metric: primaryMetric, totals: primaryTotals });
     };
 
     const _handlePrimaryMetricChange = e => {
@@ -102,7 +103,7 @@ const SecondPage = () => {
 
     const _handlePrimaryTotalsChange = e => {
         setPrimaryTotals(e.target.value);
-        curatePrimaryChartData({ country: primaryCountry, province: primaryProvince, metric: e.target.value, totals: e.target.value });
+        curatePrimaryChartData({ country: primaryCountry, province: primaryProvince, metric: primaryMetric, totals: e.target.value });
     };
 
     return (
