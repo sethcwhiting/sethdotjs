@@ -106,7 +106,7 @@ const SecondPage = () => {
         curatePrimaryChartData({ country: primaryCountry, province: primaryProvince, metric: primaryMetric, totals: e.target.value });
     };
 
-    const chartWidth = window.innerWidth > 940 ? 900 : window.innerWidth - 40;
+    const chartWidth = window.innerWidth > 930 ? 900 : window.innerWidth - 40;
 
     return (
         <Layout>
@@ -114,7 +114,7 @@ const SecondPage = () => {
             <h1>Coronavirus Data Playground</h1>
             {loading < 100 && <p>Data loading {loading}% complete</p> || (
                 <div>
-                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '10px' }}>
                             <label>Region:</label>
                             <select onChange={_handlePrimaryCountryChange}>
@@ -157,7 +157,7 @@ const SecondPage = () => {
                     <YAxis />
                     <Tooltip />
                 </LineChart>
-            ) || <div style={{ width: '900px', height: '400px', backgroundColor: '#eee' }}/>}
+            ) || <div style={{ width: `${chartWidth}px`, height: `${chartWidth / 2}px`, backgroundColor: '#eee' }}/>}
             <p style={{ marginTop: '20px' }}>Data provided by <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports" target="_blank">CSSE at Johns Hopkins University</a></p>
         </Layout>
     )
