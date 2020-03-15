@@ -27,6 +27,7 @@ const diff = (todayTime - startTime) / msInDay;
 const getDateString = date => `${date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getFullYear()}`;
 
 const SecondPage = () => {
+    const [chartWidth, setChartWidth] = useState(320);
     const [loading, setLoading] = useState(0);
     const [covidData, setCovidData] = useState([]);
     const [primaryCountry, setPrimaryCountry] = useState(null);
@@ -57,6 +58,8 @@ const SecondPage = () => {
         }
         fetchData();
     }, []);
+
+    useEffect(() => setChartWidth(window.innerWidth > 940 ? 900 : window.innerWidth - 40))
 
     const curatePrimaryChartData = args => {
         let data = covidData.reduce((agg, item) => {
@@ -105,8 +108,6 @@ const SecondPage = () => {
         setPrimaryTotals(e.target.value);
         curatePrimaryChartData({ country: primaryCountry, province: primaryProvince, metric: primaryMetric, totals: e.target.value });
     };
-
-    const chartWidth = window.innerWidth > 930 ? 900 : window.innerWidth - 40;
 
     return (
         <Layout>
