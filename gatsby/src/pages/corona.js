@@ -22,7 +22,7 @@ function convertToArrayOfObjects(data) {
 const msInDay = 1000 * 60 * 60 * 24;
 const startTime = new Date('2020-01-22').getTime();
 const now = new Date();
-const todayTime = new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`).getTime();
+const todayTime = new Date(`${now.getFullYear()}-${now.getMonth() < 9 ? '0' + (now.getMonth() + 1) : now.getMonth() + 1}-${now.getDate() < 10 ? '0' + now.getDate() : now.getDate()}`).getTime();
 const diff = (todayTime - startTime) / msInDay;
 const getDateString = date => `${date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getFullYear()}`;
 
@@ -106,6 +106,8 @@ const SecondPage = () => {
         curatePrimaryChartData({ country: primaryCountry, province: primaryProvince, metric: primaryMetric, totals: e.target.value });
     };
 
+    const chartWidth = window.innerWidth > 940 ? 900 : window.innerWidth - 40;
+
     return (
         <Layout>
             <SEO title="COVID-19 Graph" />
@@ -148,7 +150,7 @@ const SecondPage = () => {
                 </div>
             )}
             {primaryChartData.length > 0 && (
-                <LineChart width={900} height={400} data={primaryChartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <LineChart width={chartWidth} height={chartWidth / 2} data={primaryChartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={primaryMetric} stroke="rebeccapurple" dot={false} />
                     <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                     <XAxis dataKey="date" />
