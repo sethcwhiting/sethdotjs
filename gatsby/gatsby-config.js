@@ -3,6 +3,8 @@ module.exports = {
     title: `sethdotjs`,
     description: `Random stuff that Seth Whiting made, including a Coronavirus Data Visualization Playground.`,
     author: `Seth C Whiting`,
+    url: `https://sethdotjs.com`,
+    image: `/images/graph.jpg`,
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
