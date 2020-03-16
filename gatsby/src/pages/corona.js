@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "gatsby";
 import parse from "csv-parse";
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
-import Layout from "../components/layout"
-import SEO from "../components/seo"
+import Layout from "../components/layout";
+import SEO from "../components/seo";
+
+const styles = {
+    fieldWrap: {
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '450px',
+        padding: '10px',
+    },
+};
 
 function convertToArrayOfObjects(data) {
     var keys = data.shift(),
@@ -130,15 +138,14 @@ const SecondPage = () => {
             {loading < 100 && <p>Data loading {loading}% complete</p> || (
                 <div>
                     <div style={{ display: 'flex', flexDirection: 'row', flexWrap: chartWidth === 900 ? 'no-wrap' : 'wrap', justifyContent: 'center', marginBottom: 20 }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 450, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%', padding: '10px' }}>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
                             <label>Region:</label>
                             <select onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
-                                <option>Please select a country</option>
                                 {countries}
                             </select>
                         </div>
                         {primaryProvinces.length > 0 && (
-                            <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 450, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%', padding: '10px' }}>
+                            <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
                                 <label>Subregion:</label>
                                 <select onChange={_handlePrimaryProvinceChange}>
                                     <option>All</option>
@@ -146,7 +153,7 @@ const SecondPage = () => {
                                 </select>
                             </div>
                         )}
-                        <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 450, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%', padding: '10px' }}>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
                             <label>Metric:</label>
                             <select onChange={_handlePrimaryMetricChange}>
                                 <option value="confirmed">Confirmed</option>
@@ -154,7 +161,7 @@ const SecondPage = () => {
                                 <option value="deaths">Deaths</option>
                             </select>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 450, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%', padding: '10px' }}>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
                             <label>Totals:</label>
                             <select onChange={_handlePrimaryTotalsChange}>
                                 <option value="daily">Daily</option>
