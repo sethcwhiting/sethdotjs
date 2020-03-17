@@ -4,6 +4,7 @@ import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts'
 
 import Layout from "../components/layout";
 import SEO from "../components/seo";
+import { filterCountry, filterProvince } from "../utilities/regionFilter";
 
 const styles = {
     fieldWrap: {
@@ -64,7 +65,10 @@ const SecondPage = () => {
             return [...agg, obj];
         }, []);
         if (args.totals === 'cumulative') return setPrimaryChartData(data);
-        data = data.map((item, i, arr) => (i === 0 ? item : { ...item, [args.metric]: (item[args.metric] - arr[i - 1][args.metric]) || 0 }));
+        data = data.map((item, i, arr) => {
+            if (i > 1 && item.province === 'Grand Princess') console.log(item[args.metric], arr[i - 1][args.metric], item[args.metric] - arr[i - 1][args.metric]);
+            return (i === 0 ? item : { ...item, [args.metric]: (item[args.metric] - arr[i - 1][args.metric]) || 0 })
+        });
         setPrimaryChartData(data);
     };
 
@@ -76,14 +80,18 @@ const SecondPage = () => {
                 const res = await fetch(`https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${getDateString(date)}.csv`);
                 const text = await res.text();
                 const initialArr = await new Promise(resolve => parse(text, (err, data) => resolve(convertToArrayOfObjects(data))));
-                const arr = initialArr.map(item => ({
-                    date,
-                    country: item['Country/Region'].includes('China') ? 'China' : item['Country/Region'],
-                    province: item['Province/State'],
-                    confirmed: item['Confirmed'],
-                    recovered: item['Recovered'],
-                    deaths: item['Deaths'],
-                }));
+                const arr = initialArr.map(item => {
+                    const country = filterCountry(item['Country/Region']);
+                    const province = filterProvince(item['Province/State']);
+                    return {
+                        date,
+                        country,
+                        province,
+                        confirmed: item['Confirmed'],
+                        recovered: item['Recovered'],
+                        deaths: item['Deaths'],
+                    }
+                });
                 allData.push(...arr);
                 setCovidData(agg => ([...agg, ...arr]));
                 setLoading(Math.floor(i / Math.floor(diff) * 100));
