@@ -74,12 +74,15 @@ const SecondPage = () => {
         const primaryLabel = `${args.primaryMetric} in ${primaryRegion}`;
         const secondaryLabel = `${args.secondaryMetric} in ${secondaryRegion}`;
         let data = args.sample.reduce((agg, item) => {
-            if (item.country !== args.primaryCountry && item.country !== args.secondaryCountry) return agg;
             if (
-                args.primaryProvince !== 'All' &&
-                args.secondaryProvince !== 'All' &&
-                item.province !== args.primaryProvince &&
-                item.province !== args.secondaryProvince
+                (args.primaryCountry !== 'All' &&
+                    args.secondaryCountry !== 'All' &&
+                    item.country !== args.primaryCountry &&
+                    item.country !== args.secondaryCountry) ||
+                (args.primaryProvince !== 'All' &&
+                    args.secondaryProvince !== 'All' &&
+                    item.province !== args.primaryProvince &&
+                    item.province !== args.secondaryProvince)
             )
                 return agg;
             if (typeof item.date !== 'string') item.date = `${item.date.getMonth() + 1}/${item.date.getDate()}`;
@@ -87,15 +90,17 @@ const SecondPage = () => {
             let obj = { [primaryLabel]: 0, [secondaryLabel]: 0 };
             if (index >= 0) {
                 obj = { ...obj, ...agg[index] };
-                if (primaryRegion === item.country || primaryRegion === item.province)
+                if (primaryRegion === 'All' || primaryRegion === item.country || primaryRegion === item.province)
                     obj[primaryLabel] = agg[index][primaryLabel] + (parseInt(item[args.primaryMetric]) || 0);
-                if (secondaryRegion === item.country || secondaryRegion === item.province)
+                if (secondaryRegion === 'All' || secondaryRegion === item.country || secondaryRegion === item.province)
                     obj[secondaryLabel] = agg[index][secondaryLabel] + (parseInt(item[args.secondaryMetric]) || 0);
                 return [...agg.slice(0, index), obj, ...agg.slice(index + 1)];
             }
             obj.date = item.date;
-            if (primaryRegion === item.country || primaryRegion === item.province) obj[primaryLabel] = parseInt(item[args.primaryMetric]) || 0;
-            if (secondaryRegion === item.country || secondaryRegion === item.province) obj[secondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
+            if (primaryRegion === 'All' || primaryRegion === item.country || primaryRegion === item.province)
+                obj[primaryLabel] = parseInt(item[args.primaryMetric]) || 0;
+            if (secondaryRegion === 'All' || secondaryRegion === item.country || secondaryRegion === item.province)
+                obj[secondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
             return [...agg, obj];
         }, []);
         if (args.primaryTotals === 'cumulative' && args.secondaryTotals === 'cumulative') return setChartData(data);
@@ -252,6 +257,7 @@ const SecondPage = () => {
                             <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Region:
                                 <select id="countrySelect" onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
+                                    <option>All</option>
                                     {countries}
                                 </select>
                             </label>
@@ -303,6 +309,7 @@ const SecondPage = () => {
                             <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Region:
                                 <select id="countrySelect" onChange={_handleSecondaryCountryChange} defaultValue={secondaryCountry}>
+                                    <option>All</option>
                                     {countries}
                                 </select>
                             </label>
