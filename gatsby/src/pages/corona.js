@@ -100,23 +100,17 @@ const SecondPage = () => {
         }, []);
         if (args.primaryTotals === 'cumulative' && args.secondaryTotals === 'cumulative') return setChartData(data);
         if (args.primaryTotals === 'daily')
-            data = data.map((item, i, arr) =>
-                i === 0
-                    ? item
-                    : {
-                          ...item,
-                          [primaryLabel]: item[primaryLabel] - arr[i - 1][primaryLabel] || 0,
-                      }
-            );
+            data = data.map((item, i, arr) => {
+                if (i === 0) return item;
+                const dailyDiff = item[primaryLabel] - arr[i - 1][primaryLabel];
+                return { ...item, [primaryLabel]: dailyDiff > 0 ? dailyDiff : 0 };
+            });
         if (args.secondaryTotals === 'daily')
-            data = data.map((item, i, arr) =>
-                i === 0
-                    ? item
-                    : {
-                          ...item,
-                          [secondaryLabel]: item[secondaryLabel] - arr[i - 1][secondaryLabel] || 0,
-                      }
-            );
+            data = data.map((item, i, arr) => {
+                if (i === 0) return item;
+                const dailyDiff = item[secondaryLabel] - arr[i - 1][secondaryLabel];
+                return { ...item, [secondaryLabel]: dailyDiff > 0 ? dailyDiff : 0 };
+            });
         setChartData(data);
     };
 
