@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import parse from "csv-parse";
+import React, { useEffect, useState } from 'react';
+import parse from 'csv-parse';
 import { LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
 
-import Layout from "../components/layout";
-import SEO from "../components/seo";
-import { filterCountry, filterProvince } from "../utilities/regionFilter";
+import Layout from '../components/layout';
+import SEO from '../components/seo';
+import { filterCountry, filterProvince } from '../utilities/regionFilter';
 
 const styles = {
     fieldWrap: {
@@ -16,13 +16,14 @@ const styles = {
 };
 
 function convertToArrayOfObjects(data) {
-    var keys = data.shift(),
-        i = 0, k = 0,
-        obj = null,
-        output = [];
-    for (i = 0; i < data.length; i++) {
+    const keys = data.shift();
+    let i = 0;
+    let k = 0;
+    let obj = null;
+    const output = [];
+    for (i = 0; i < data.length; i += 1) {
         obj = {};
-        for (k = 0; k < keys.length; k++) obj[keys[k]] = data[i][k];
+        for (k = 0; k < keys.length; k += 1) obj[keys[k]] = data[i][k];
         output.push(obj);
     }
     return output;
@@ -31,9 +32,14 @@ function convertToArrayOfObjects(data) {
 const msInDay = 1000 * 60 * 60 * 24;
 const startTime = new Date('2020-01-22').getTime();
 const now = new Date();
-const todayTime = new Date(`${now.getFullYear()}-${now.getMonth() < 9 ? '0' + (now.getMonth() + 1) : now.getMonth() + 1}-${now.getDate() < 10 ? '0' + now.getDate() : now.getDate()}`).getTime();
+const todayTime = new Date(
+    `${now.getFullYear()}-${now.getMonth() < 9 ? `0${now.getMonth() + 1}` : now.getMonth() + 1}-${now.getDate() < 10 ? `0${now.getDate()}` : now.getDate()}`
+).getTime();
 const diff = (todayTime - startTime) / msInDay;
-const getDateString = date => `${date.getMonth() < 9 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}-${date.getFullYear()}`;
+const getDateString = date =>
+    `${date.getMonth() < 9 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${
+        date.getDate() < 10 ? `0${date.getDate()}` : date.getDate()
+    }-${date.getFullYear()}`;
 
 const SecondPage = () => {
     const [chartWidth, setChartWidth] = useState(320);
@@ -52,7 +58,7 @@ const SecondPage = () => {
             country: props.country || primaryCountry,
             province: props.province || primaryProvince,
             metric: props.metric || primaryMetric,
-            totals: props.totals || primaryTotals
+            totals: props.totals || primaryTotals,
         };
         let data = args.sample.reduce((agg, item) => {
             if (item.country !== args.country) return agg;
@@ -66,8 +72,9 @@ const SecondPage = () => {
         }, []);
         if (args.totals === 'cumulative') return setPrimaryChartData(data);
         data = data.map((item, i, arr) => {
-            if (i > 1 && item.province === 'Grand Princess') console.log(item[args.metric], arr[i - 1][args.metric], item[args.metric] - arr[i - 1][args.metric]);
-            return (i === 0 ? item : { ...item, [args.metric]: (item[args.metric] - arr[i - 1][args.metric]) || 0 })
+            if (i > 1 && item.province === 'Grand Princess')
+                console.log(item[args.metric], arr[i - 1][args.metric], item[args.metric] - arr[i - 1][args.metric]);
+            return i === 0 ? item : { ...item, [args.metric]: item[args.metric] - arr[i - 1][args.metric] || 0 };
         });
         setPrimaryChartData(data);
     };
@@ -77,7 +84,9 @@ const SecondPage = () => {
             const allData = [];
             for (let i = 1; i <= Math.floor(diff); i += 1) {
                 const date = new Date(startTime + i * msInDay);
-                const res = await fetch(`https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${getDateString(date)}.csv`);
+                const res = await fetch(
+                    `https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/${getDateString(date)}.csv`
+                );
                 const text = await res.text();
                 const initialArr = await new Promise(resolve => parse(text, (err, data) => resolve(convertToArrayOfObjects(data))));
                 const arr = initialArr.map(item => {
@@ -87,21 +96,25 @@ const SecondPage = () => {
                         date,
                         country,
                         province,
-                        confirmed: item['Confirmed'],
-                        recovered: item['Recovered'],
-                        deaths: item['Deaths'],
-                    }
+                        confirmed: item.Confirmed,
+                        recovered: item.Recovered,
+                        deaths: item.Deaths,
+                    };
                 });
                 allData.push(...arr);
-                setCovidData(agg => ([...agg, ...arr]));
-                setLoading(Math.floor(i / Math.floor(diff) * 100));
+                setCovidData(agg => [...agg, ...arr]);
+                setLoading(Math.floor((i / Math.floor(diff)) * 100));
                 if (i === Math.floor(diff)) {
-                    const provinces = allData.reduce((agg, item) => (item.country === primaryCountry && !agg.includes(item.province) && item.province !== '' ? [...agg, item.province] : agg), []);
+                    const provinces = allData.reduce(
+                        (agg, item) =>
+                            item.country === primaryCountry && !agg.includes(item.province) && item.province !== '' ? [...agg, item.province] : agg,
+                        []
+                    );
                     setPrimaryProvinces(provinces);
                     curatePrimaryChartData({ data: allData });
-                };
+                }
             }
-        }
+        };
         fetchData();
     }, []);
 
@@ -111,18 +124,19 @@ const SecondPage = () => {
         .reduce((agg, item) => (agg.includes(item.country) ? agg : [...agg, item.country]), [])
         .sort()
         .map(country => <option key={country}>{country}</option>);
-    
+
     const _handlePrimaryCountryChange = e => {
         setPrimaryCountry(e.target.value);
-        const provinces = covidData.reduce((agg, item) => (item.country === e.target.value && !agg.includes(item.province) && item.province !== '' ? [...agg, item.province] : agg), []);
+        const provinces = covidData.reduce(
+            (agg, item) => (item.country === e.target.value && !agg.includes(item.province) && item.province !== '' ? [...agg, item.province] : agg),
+            []
+        );
         setPrimaryProvinces(provinces);
         setPrimaryProvince('All');
         curatePrimaryChartData({ country: e.target.value, province: 'All' });
     };
 
-    const primaryProvinceOptions = primaryProvinces
-        .sort()
-        .map(province => <option key={province}>{province}</option>);
+    const primaryProvinceOptions = primaryProvinces.sort().map(province => <option key={province}>{province}</option>);
 
     const _handlePrimaryProvinceChange = e => {
         setPrimaryProvince(e.target.value);
@@ -143,43 +157,59 @@ const SecondPage = () => {
         <Layout>
             <SEO title="COVID-19 Graph" />
             <h1>Coronavirus Data Playground</h1>
-            {loading < 100 && <p>Data loading {loading}% complete</p> || (
+            {(loading < 100 && <p>Data loading {loading}% complete</p>) || (
                 <div>
-                    <div style={{ display: 'flex', flexDirection: 'row', flexWrap: chartWidth === 900 ? 'no-wrap' : 'wrap', justifyContent: 'center', marginBottom: 20 }}>
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
-                            <label>Region:</label>
-                            <select onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
-                                {countries}
-                            </select>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: chartWidth === 900 ? 'no-wrap' : 'wrap',
+                            justifyContent: 'center',
+                            marginBottom: 20,
+                        }}
+                    >
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                            <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Region:
+                                <select id="countrySelect" onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
+                                    {countries}
+                                </select>
+                            </label>
                         </div>
                         {primaryProvinces.length > 0 && (
-                            <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
-                                <label>Subregion:</label>
-                                <select onChange={_handlePrimaryProvinceChange}>
-                                    <option>All</option>
-                                    {primaryProvinceOptions}
-                                </select>
+                            <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                                <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                    Subregion:
+                                    <select id="provinceSelect" onChange={_handlePrimaryProvinceChange}>
+                                        <option>All</option>
+                                        {primaryProvinceOptions}
+                                    </select>
+                                </label>
                             </div>
                         )}
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
-                            <label>Metric:</label>
-                            <select onChange={_handlePrimaryMetricChange}>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="recovered">Recovered</option>
-                                <option value="deaths">Deaths</option>
-                            </select>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                            <label htmlFor="metricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Metric:
+                                <select id="metricSelect" onChange={_handlePrimaryMetricChange}>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="recovered">Recovered</option>
+                                    <option value="deaths">Deaths</option>
+                                </select>
+                            </label>
                         </div>
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%' || '33%') : '100%' }}>
-                            <label>Totals:</label>
-                            <select onChange={_handlePrimaryTotalsChange}>
-                                <option value="daily">Daily</option>
-                                <option value="cumulative">Cumulative</option>
-                            </select>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                            <label htmlFor="totalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Totals:
+                                <select id="totalsSelect" onChange={_handlePrimaryTotalsChange}>
+                                    <option value="daily">Daily</option>
+                                    <option value="cumulative">Cumulative</option>
+                                </select>
+                            </label>
                         </div>
                     </div>
                 </div>
             )}
-            {primaryChartData.length > 0 && (
+            {(primaryChartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={primaryChartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={primaryMetric} stroke="rebeccapurple" dot={false} />
                     <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
@@ -187,10 +217,19 @@ const SecondPage = () => {
                     <YAxis />
                     <Tooltip />
                 </LineChart>
-            ) || <div style={{ width: `${chartWidth}px`, height: `${chartWidth / 2}px`, backgroundColor: '#eee' }}/>}
-            <p style={{ marginTop: '20px' }}>Data provided by <a href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports" target="_blank">CSSE at Johns Hopkins University</a></p>
+            )) || <div style={{ width: `${chartWidth}px`, height: `${chartWidth / 2}px`, backgroundColor: '#eee' }} />}
+            <p style={{ marginTop: '20px' }}>
+                Data provided by{' '}
+                <a
+                    href="https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_daily_reports"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    CSSE at Johns Hopkins University
+                </a>
+            </p>
         </Layout>
-    )
-}
+    );
+};
 
-export default SecondPage
+export default SecondPage;
