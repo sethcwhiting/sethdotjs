@@ -254,9 +254,9 @@ const SecondPage = () => {
                         }}
                     >
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="primaryCountrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Region:
-                                <select id="countrySelect" onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
+                                <select id="primaryCountrySelect" onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
                                     <option>All</option>
                                     {countries}
                                 </select>
@@ -264,10 +264,10 @@ const SecondPage = () => {
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
                             {/* eslint-disable-next-line jsx-a11y/label-has-for */}
-                            <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="primaryProvinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Subregion:
                                 {(primaryProvinces.length > 0 && (
-                                    <select id="provinceSelect" onChange={_handlePrimaryProvinceChange}>
+                                    <select id="primaryProvinceSelect" onChange={_handlePrimaryProvinceChange}>
                                         <option>All</option>
                                         {primaryProvinceOptions}
                                     </select>
@@ -275,9 +275,9 @@ const SecondPage = () => {
                             </label>
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="metricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="primaryMetricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Metric:
-                                <select id="metricSelect" onChange={_handlePrimaryMetricChange}>
+                                <select id="primaryMetricSelect" onChange={_handlePrimaryMetricChange}>
                                     <option value="Confirmed">Confirmed</option>
                                     <option value="Recovered">Recovered</option>
                                     <option value="deaths">Deaths</option>
@@ -285,9 +285,9 @@ const SecondPage = () => {
                             </label>
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="totalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="primaryTotalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Totals:
-                                <select id="totalsSelect" onChange={_handlePrimaryTotalsChange}>
+                                <select id="primaryTotalsSelect" onChange={_handlePrimaryTotalsChange}>
                                     <option value="daily">Daily</option>
                                     <option value="cumulative">Cumulative</option>
                                 </select>
@@ -306,9 +306,9 @@ const SecondPage = () => {
                         }}
                     >
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="secondaryCountrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Region:
-                                <select id="countrySelect" onChange={_handleSecondaryCountryChange} defaultValue={secondaryCountry}>
+                                <select id="secondaryCountrySelect" onChange={_handleSecondaryCountryChange} defaultValue={secondaryCountry}>
                                     <option>All</option>
                                     {countries}
                                 </select>
@@ -316,10 +316,10 @@ const SecondPage = () => {
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
                             {/* eslint-disable-next-line jsx-a11y/label-has-for */}
-                            <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="secondaryProvinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Subregion:
                                 {(secondaryProvinces.length > 0 && (
-                                    <select id="provinceSelect" onChange={_handleSecondaryProvinceChange}>
+                                    <select id="secondaryProvinceSelect" onChange={_handleSecondaryProvinceChange}>
                                         <option>All</option>
                                         {secondaryProvinceOptions}
                                     </select>
@@ -327,9 +327,9 @@ const SecondPage = () => {
                             </label>
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="metricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="secondaryMetricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Metric:
-                                <select id="metricSelect" onChange={_handleSecondaryMetricChange}>
+                                <select id="secondaryMetricSelect" onChange={_handleSecondaryMetricChange}>
                                     <option value="Confirmed">Confirmed</option>
                                     <option value="Recovered">Recovered</option>
                                     <option value="deaths">Deaths</option>
@@ -337,9 +337,9 @@ const SecondPage = () => {
                             </label>
                         </div>
                         <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
-                            <label htmlFor="totalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                            <label htmlFor="secondaryTotalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Totals:
-                                <select id="totalsSelect" onChange={_handleSecondaryTotalsChange}>
+                                <select id="secondaryTotalsSelect" onChange={_handleSecondaryTotalsChange}>
                                     <option value="daily">Daily</option>
                                     <option value="cumulative">Cumulative</option>
                                 </select>
