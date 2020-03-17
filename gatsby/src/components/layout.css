@@ -658,3 +658,7 @@ pre code:before, pre code:after, pre tt:before, pre tt:after {
         font-size: 100%;
     }
 }
+
+.recharts-surface {
+    overflow: visible !important;
+}

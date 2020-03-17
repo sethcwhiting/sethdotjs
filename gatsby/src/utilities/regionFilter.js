@@ -2,6 +2,8 @@ export const filterCountry = country => {
     if (country.includes('China')) return 'China';
     if (country.includes('Taiwan')) return 'Taiwan';
     if (country.includes('Taipei')) return 'Taiwan';
+    if (country.includes('US')) return 'United States';
+    if (country.includes('UK')) return 'United Kingdom';
     return country;
 };
 

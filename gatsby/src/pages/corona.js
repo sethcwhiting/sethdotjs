@@ -45,38 +45,79 @@ const SecondPage = () => {
     const [chartWidth, setChartWidth] = useState(320);
     const [loading, setLoading] = useState(0);
     const [covidData, setCovidData] = useState([]);
-    const [primaryCountry, setPrimaryCountry] = useState('US');
+    const [primaryCountry, setPrimaryCountry] = useState('United States');
     const [primaryProvinces, setPrimaryProvinces] = useState([]);
     const [primaryProvince, setPrimaryProvince] = useState('All');
-    const [primaryMetric, setPrimaryMetric] = useState('confirmed');
-    const [primaryChartData, setPrimaryChartData] = useState([]);
+    const [primaryMetric, setPrimaryMetric] = useState('Confirmed');
+    const [chartData, setChartData] = useState([]);
     const [primaryTotals, setPrimaryTotals] = useState('daily');
+    const [secondaryCountry, setSecondaryCountry] = useState('Italy');
+    const [secondaryProvinces, setSecondaryProvinces] = useState([]);
+    const [secondaryProvince, setSecondaryProvince] = useState('All');
+    const [secondaryMetric, setSecondaryMetric] = useState('Confirmed');
+    const [secondaryTotals, setSecondaryTotals] = useState('daily');
 
-    const curatePrimaryChartData = props => {
+    const curateChartData = props => {
         const args = {
             sample: props.data || covidData,
-            country: props.country || primaryCountry,
-            province: props.province || primaryProvince,
-            metric: props.metric || primaryMetric,
-            totals: props.totals || primaryTotals,
+            primaryCountry: props.primaryCountry || primaryCountry,
+            primaryProvince: props.primaryProvince || primaryProvince,
+            primaryMetric: props.primaryMetric || primaryMetric,
+            primaryTotals: props.primaryTotals || primaryTotals,
+            secondaryCountry: props.secondaryCountry || secondaryCountry,
+            secondaryProvince: props.secondaryProvince || secondaryProvince,
+            secondaryMetric: props.secondaryMetric || secondaryMetric,
+            secondaryTotals: props.secondaryTotals || secondaryTotals,
         };
+        const primaryRegion = args.primaryProvince === 'All' ? args.primaryCountry : args.primaryProvince;
+        const secondaryRegion = args.secondaryProvince === 'All' ? args.secondaryCountry : args.secondaryProvince;
+        const primaryLabel = `${args.primaryMetric} in ${primaryRegion}`;
+        const secondaryLabel = `${args.secondaryMetric} in ${secondaryRegion}`;
         let data = args.sample.reduce((agg, item) => {
-            if (item.country !== args.country) return agg;
-            if (args.province !== 'All' && item.province !== args.province) return agg;
+            if (item.country !== args.primaryCountry && item.country !== args.secondaryCountry) return agg;
+            if (
+                args.primaryProvince !== 'All' &&
+                args.secondaryProvince !== 'All' &&
+                item.province !== args.primaryProvince &&
+                item.province !== args.secondaryProvince
+            )
+                return agg;
             if (typeof item.date !== 'string') item.date = `${item.date.getMonth() + 1}/${item.date.getDate()}`;
             const index = agg.findIndex(a => a.date === item.date);
-            if (index >= 0) return [...agg.slice(0, index), { ...agg[index], [args.metric]: agg[index][args.metric] + parseInt(item[args.metric]) }];
-            const obj = { date: item.date, country: item.country, [args.metric]: parseInt(item[args.metric]) || 0 };
-            if (args.province) obj.province = item.province;
+            let obj = { [primaryLabel]: 0, [secondaryLabel]: 0 };
+            if (index >= 0) {
+                obj = { ...obj, ...agg[index] };
+                if (primaryRegion === item.country || primaryRegion === item.province)
+                    obj[primaryLabel] = agg[index][primaryLabel] + (parseInt(item[args.primaryMetric]) || 0);
+                if (secondaryRegion === item.country || secondaryRegion === item.province)
+                    obj[secondaryLabel] = agg[index][secondaryLabel] + (parseInt(item[args.secondaryMetric]) || 0);
+                return [...agg.slice(0, index), obj, ...agg.slice(index + 1)];
+            }
+            obj.date = item.date;
+            if (primaryRegion === item.country || primaryRegion === item.province) obj[primaryLabel] = parseInt(item[args.primaryMetric]) || 0;
+            if (secondaryRegion === item.country || secondaryRegion === item.province) obj[secondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
             return [...agg, obj];
         }, []);
-        if (args.totals === 'cumulative') return setPrimaryChartData(data);
-        data = data.map((item, i, arr) => {
-            if (i > 1 && item.province === 'Grand Princess')
-                console.log(item[args.metric], arr[i - 1][args.metric], item[args.metric] - arr[i - 1][args.metric]);
-            return i === 0 ? item : { ...item, [args.metric]: item[args.metric] - arr[i - 1][args.metric] || 0 };
-        });
-        setPrimaryChartData(data);
+        if (args.primaryTotals === 'cumulative' && args.secondaryTotals === 'cumulative') return setChartData(data);
+        if (args.primaryTotals === 'daily')
+            data = data.map((item, i, arr) =>
+                i === 0
+                    ? item
+                    : {
+                          ...item,
+                          [primaryLabel]: item[primaryLabel] - arr[i - 1][primaryLabel] || 0,
+                      }
+            );
+        if (args.secondaryTotals === 'daily')
+            data = data.map((item, i, arr) =>
+                i === 0
+                    ? item
+                    : {
+                          ...item,
+                          [secondaryLabel]: item[secondaryLabel] - arr[i - 1][secondaryLabel] || 0,
+                      }
+            );
+        setChartData(data);
     };
 
     useEffect(() => {
@@ -92,14 +133,7 @@ const SecondPage = () => {
                 const arr = initialArr.map(item => {
                     const country = filterCountry(item['Country/Region']);
                     const province = filterProvince(item['Province/State']);
-                    return {
-                        date,
-                        country,
-                        province,
-                        confirmed: item.Confirmed,
-                        recovered: item.Recovered,
-                        deaths: item.Deaths,
-                    };
+                    return { date, country, province, Confirmed: item.Confirmed, Recovered: item.Recovered, deaths: item.Deaths };
                 });
                 allData.push(...arr);
                 setCovidData(agg => [...agg, ...arr]);
@@ -111,7 +145,7 @@ const SecondPage = () => {
                         []
                     );
                     setPrimaryProvinces(provinces);
-                    curatePrimaryChartData({ data: allData });
+                    curateChartData({ data: allData });
                 }
             }
         };
@@ -133,42 +167,94 @@ const SecondPage = () => {
         );
         setPrimaryProvinces(provinces);
         setPrimaryProvince('All');
-        curatePrimaryChartData({ country: e.target.value, province: 'All' });
+        curateChartData({ primaryCountry: e.target.value, province: 'All' });
     };
 
     const primaryProvinceOptions = primaryProvinces.sort().map(province => <option key={province}>{province}</option>);
 
     const _handlePrimaryProvinceChange = e => {
         setPrimaryProvince(e.target.value);
-        curatePrimaryChartData({ province: e.target.value });
+        curateChartData({ primaryProvince: e.target.value });
     };
 
     const _handlePrimaryMetricChange = e => {
         setPrimaryMetric(e.target.value);
-        curatePrimaryChartData({ metric: e.target.value });
+        curateChartData({ primaryMetric: e.target.value });
     };
 
     const _handlePrimaryTotalsChange = e => {
         setPrimaryTotals(e.target.value);
-        curatePrimaryChartData({ totals: e.target.value });
+        curateChartData({ primaryTotals: e.target.value });
+    };
+
+    const _handleSecondaryCountryChange = e => {
+        setSecondaryCountry(e.target.value);
+        const provinces = covidData.reduce(
+            (agg, item) => (item.country === e.target.value && !agg.includes(item.province) && item.province !== '' ? [...agg, item.province] : agg),
+            []
+        );
+        setSecondaryProvinces(provinces);
+        setSecondaryProvince('All');
+        curateChartData({ secondaryCountry: e.target.value, province: 'All' });
+    };
+
+    const secondaryProvinceOptions = secondaryProvinces.sort().map(province => <option key={province}>{province}</option>);
+
+    const _handleSecondaryProvinceChange = e => {
+        setSecondaryProvince(e.target.value);
+        curateChartData({ secondaryProvince: e.target.value });
+    };
+
+    const _handleSecondaryMetricChange = e => {
+        setSecondaryMetric(e.target.value);
+        curateChartData({ secondaryMetric: e.target.value });
+    };
+
+    const _handleSecondaryTotalsChange = e => {
+        setSecondaryTotals(e.target.value);
+        curateChartData({ secondaryTotals: e.target.value });
     };
 
     return (
         <Layout>
             <SEO title="COVID-19 Graph" />
             <h1>Coronavirus Data Playground</h1>
-            {(loading < 100 && <p>Data loading {loading}% complete</p>) || (
+            {(chartData.length > 0 && (
+                <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                    <Line dataKey={`${primaryMetric} in ${primaryProvince === 'All' ? primaryCountry : primaryProvince}`} stroke="rebeccapurple" dot={false} />
+                    <Line dataKey={`${secondaryMetric} in ${secondaryCountry}`} stroke="#009387" dot={false} />
+                    <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                </LineChart>
+            )) || (
+                <div
+                    style={{
+                        width: `${chartWidth}px`,
+                        height: `${chartWidth / 2}px`,
+                        backgroundColor: '#eee',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
+                    <p style={{ margin: 0, color: '#444' }}>Data loading {loading}% complete...</p>
+                </div>
+            )}
+            {loading === 100 && (
                 <div>
                     <div
                         style={{
                             display: 'flex',
                             flexDirection: 'row',
                             flexWrap: chartWidth === 900 ? 'no-wrap' : 'wrap',
-                            justifyContent: 'center',
-                            marginBottom: 20,
+                            justifyContent: chartWidth === 900 ? 'flex-start' : 'center',
+                            marginTop: 20,
+                            borderLeft: '8px solid rebeccapurple',
                         }}
                     >
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
                             <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Region:
                                 <select id="countrySelect" onChange={_handlePrimaryCountryChange} defaultValue={primaryCountry}>
@@ -176,28 +262,29 @@ const SecondPage = () => {
                                 </select>
                             </label>
                         </div>
-                        {primaryProvinces.length > 0 && (
-                            <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
-                                <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
-                                    Subregion:
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
+                            {/* eslint-disable-next-line jsx-a11y/label-has-for */}
+                            <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Subregion:
+                                {(primaryProvinces.length > 0 && (
                                     <select id="provinceSelect" onChange={_handlePrimaryProvinceChange}>
                                         <option>All</option>
                                         {primaryProvinceOptions}
                                     </select>
-                                </label>
-                            </div>
-                        )}
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                                )) || <p style={{ margin: 0, color: '#999' }}>N/A</p>}
+                            </label>
+                        </div>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
                             <label htmlFor="metricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Metric:
                                 <select id="metricSelect" onChange={_handlePrimaryMetricChange}>
-                                    <option value="confirmed">Confirmed</option>
-                                    <option value="recovered">Recovered</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Recovered">Recovered</option>
                                     <option value="deaths">Deaths</option>
                                 </select>
                             </label>
                         </div>
-                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? (primaryProvinces.length && '25%') || '33%' : '100%' }}>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
                             <label htmlFor="totalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Totals:
                                 <select id="totalsSelect" onChange={_handlePrimaryTotalsChange}>
@@ -207,17 +294,59 @@ const SecondPage = () => {
                             </label>
                         </div>
                     </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: chartWidth === 900 ? 'no-wrap' : 'wrap',
+                            justifyContent: chartWidth === 900 ? 'flex-start' : 'center',
+                            marginTop: 8,
+                            marginBottom: 20,
+                            borderLeft: '8px solid #009387',
+                        }}
+                    >
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
+                            <label htmlFor="countrySelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Region:
+                                <select id="countrySelect" onChange={_handleSecondaryCountryChange} defaultValue={secondaryCountry}>
+                                    {countries}
+                                </select>
+                            </label>
+                        </div>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
+                            {/* eslint-disable-next-line jsx-a11y/label-has-for */}
+                            <label htmlFor="provinceSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Subregion:
+                                {(secondaryProvinces.length > 0 && (
+                                    <select id="provinceSelect" onChange={_handleSecondaryProvinceChange}>
+                                        <option>All</option>
+                                        {secondaryProvinceOptions}
+                                    </select>
+                                )) || <p style={{ margin: 0, color: '#999' }}>N/A</p>}
+                            </label>
+                        </div>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
+                            <label htmlFor="metricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Metric:
+                                <select id="metricSelect" onChange={_handleSecondaryMetricChange}>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Recovered">Recovered</option>
+                                    <option value="deaths">Deaths</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div style={{ ...styles.fieldWrap, width: chartWidth === 900 ? '25%' : '100%' }}>
+                            <label htmlFor="totalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
+                                Totals:
+                                <select id="totalsSelect" onChange={_handleSecondaryTotalsChange}>
+                                    <option value="daily">Daily</option>
+                                    <option value="cumulative">Cumulative</option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
                 </div>
             )}
-            {(primaryChartData.length > 0 && (
-                <LineChart width={chartWidth} height={chartWidth / 2} data={primaryChartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-                    <Line dataKey={primaryMetric} stroke="rebeccapurple" dot={false} />
-                    <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                </LineChart>
-            )) || <div style={{ width: `${chartWidth}px`, height: `${chartWidth / 2}px`, backgroundColor: '#eee' }} />}
             <p style={{ marginTop: '20px' }}>
                 Data provided by{' '}
                 <a
