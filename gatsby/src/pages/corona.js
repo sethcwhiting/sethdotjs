@@ -217,7 +217,7 @@ const SecondPage = () => {
     return (
         <Layout>
             <SEO title="COVID-19 Graph" />
-            <h1>Coronavirus Data Playground</h1>
+            <h1>Interactive Data Visualization of Coronavirus Impact</h1>
             {(chartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={`${primaryMetric} in ${primaryProvince === 'All' ? primaryCountry : primaryProvince}`} stroke="rebeccapurple" dot={false} />
