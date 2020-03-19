@@ -221,7 +221,11 @@ const SecondPage = () => {
             {(chartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={`${primaryMetric} in ${primaryProvince === 'All' ? primaryCountry : primaryProvince}`} stroke="rebeccapurple" dot={false} />
-                    <Line dataKey={`${secondaryMetric} in ${secondaryCountry}`} stroke="#009387" dot={false} />
+                    <Line
+                        dataKey={`${secondaryMetric} in ${secondaryProvince === 'All' ? secondaryCountry : secondaryProvince}`}
+                        stroke="#009387"
+                        dot={false}
+                    />
                     <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                     <XAxis dataKey="date" />
                     <YAxis />
