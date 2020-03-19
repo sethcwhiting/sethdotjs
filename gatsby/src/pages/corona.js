@@ -71,36 +71,27 @@ const SecondPage = () => {
         };
         const primaryRegion = args.primaryProvince === 'All' ? args.primaryCountry : args.primaryProvince;
         const secondaryRegion = args.secondaryProvince === 'All' ? args.secondaryCountry : args.secondaryProvince;
-        const primaryLabel = `${args.primaryMetric} in ${primaryRegion}`;
-        const secondaryLabel = `${args.secondaryMetric} in ${secondaryRegion}`;
+        let primaryLabel = `${args.primaryMetric} in ${primaryRegion}`;
+        let secondaryLabel = `${args.secondaryMetric} in ${secondaryRegion}`;
+        const same = primaryRegion === secondaryRegion;
+        primaryLabel += same ? '-1' : '';
+        secondaryLabel += same ? '-2' : '';
         let data = args.sample.reduce((agg, item) => {
-            if (
-                (args.primaryCountry !== 'All' &&
-                    args.secondaryCountry !== 'All' &&
-                    item.country !== args.primaryCountry &&
-                    item.country !== args.secondaryCountry) ||
-                (args.primaryProvince !== 'All' &&
-                    args.secondaryProvince !== 'All' &&
-                    item.province !== args.primaryProvince &&
-                    item.province !== args.secondaryProvince)
-            )
-                return agg;
+            const primaryConditionsMet = item.province === args.primaryProvince || item.country === args.primaryCountry || primaryRegion === 'All';
+            const secondaryConditionsMet = item.province === args.secondaryProvince || item.country === args.secondaryCountry || secondaryRegion === 'All';
+            if (!primaryConditionsMet && !secondaryConditionsMet) return agg;
             if (typeof item.date !== 'string') item.date = `${item.date.getMonth() + 1}/${item.date.getDate()}`;
             const index = agg.findIndex(a => a.date === item.date);
             let obj = { [primaryLabel]: 0, [secondaryLabel]: 0 };
             if (index >= 0) {
                 obj = { ...obj, ...agg[index] };
-                if (primaryRegion === 'All' || primaryRegion === item.country || primaryRegion === item.province)
-                    obj[primaryLabel] = agg[index][primaryLabel] + (parseInt(item[args.primaryMetric]) || 0);
-                if (secondaryRegion === 'All' || secondaryRegion === item.country || secondaryRegion === item.province)
-                    obj[secondaryLabel] = agg[index][secondaryLabel] + (parseInt(item[args.secondaryMetric]) || 0);
+                if (primaryConditionsMet) obj[primaryLabel] = agg[index][primaryLabel] + (parseInt(item[args.primaryMetric]) || 0);
+                if (secondaryConditionsMet) obj[secondaryLabel] = agg[index][secondaryLabel] + (parseInt(item[args.secondaryMetric]) || 0);
                 return [...agg.slice(0, index), obj, ...agg.slice(index + 1)];
             }
             obj.date = item.date;
-            if (primaryRegion === 'All' || primaryRegion === item.country || primaryRegion === item.province)
-                obj[primaryLabel] = parseInt(item[args.primaryMetric]) || 0;
-            if (secondaryRegion === 'All' || secondaryRegion === item.country || secondaryRegion === item.province)
-                obj[secondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
+            if (primaryConditionsMet) obj[primaryLabel] = parseInt(item[args.primaryMetric]) || 0;
+            if (secondaryConditionsMet) obj[secondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
             return [...agg, obj];
         }, []);
         if (args.primaryTotals === 'cumulative' && args.secondaryTotals === 'cumulative') return setChartData(data);
@@ -116,6 +107,7 @@ const SecondPage = () => {
                 const dailyDiff = item[secondaryLabel] - arr[i - 1][secondaryLabel];
                 return { ...item, [secondaryLabel]: dailyDiff > 0 ? dailyDiff : 0 };
             });
+        if (same) console.log(data);
         setChartData(data);
     };
 
@@ -221,7 +213,11 @@ const SecondPage = () => {
             {(chartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={`${primaryMetric} in ${primaryProvince === 'All' ? primaryCountry : primaryProvince}`} stroke="rebeccapurple" dot={false} />
-                    <Line dataKey={`${secondaryMetric} in ${secondaryCountry}`} stroke="#009387" dot={false} />
+                    <Line
+                        dataKey={`${secondaryMetric} in ${secondaryProvince === 'All' ? secondaryCountry : secondaryProvince}`}
+                        stroke="#009387"
+                        dot={false}
+                    />
                     <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                     <XAxis dataKey="date" />
                     <YAxis />
