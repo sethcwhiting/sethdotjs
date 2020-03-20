@@ -220,8 +220,8 @@ const SecondPage = () => {
                 This tool was made to answer questions I had like, "<strong>How how has COVID-19 impacted the US vs Italy?</strong>", "
                 <strong>How many confirmed coronavirus cases have there been in my state so far?</strong>", and "
                 <strong>How many people have died from COVID-19 in China?</strong>". I knew other people would be curious about this information as well, so I
-                found a data source and distilled it all down into this easy to follow visual format. It's been very helpful for answering all of my own
-                questions. I hope it will be just as helpful in answering yours.
+                found a data source and distilled it all down into this easy to follow visual format. It's been very helpful for answering my own questions. I
+                hope it will be just as helpful in answering yours.
             </p>
             {(chartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
