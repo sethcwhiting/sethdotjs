@@ -50,13 +50,13 @@ const SecondPage = () => {
     const [primaryProvince, setPrimaryProvince] = useState('All');
     const [primaryMetric, setPrimaryMetric] = useState('Confirmed');
     const [chartData, setChartData] = useState([]);
-    const [primaryTotals, setPrimaryTotals] = useState('daily');
+    const [primaryTotals, setPrimaryTotals] = useState('Daily');
     const [primaryLabel, setPrimaryLabel] = useState('Confirmed in United States');
     const [secondaryCountry, setSecondaryCountry] = useState('Italy');
     const [secondaryProvinces, setSecondaryProvinces] = useState([]);
     const [secondaryProvince, setSecondaryProvince] = useState('All');
     const [secondaryMetric, setSecondaryMetric] = useState('Confirmed');
-    const [secondaryTotals, setSecondaryTotals] = useState('daily');
+    const [secondaryTotals, setSecondaryTotals] = useState('Daily');
     const [secondaryLabel, setSecondaryLabel] = useState('Confirmed in Italy');
 
     const curateChartData = props => {
@@ -98,14 +98,14 @@ const SecondPage = () => {
             if (secondaryConditionsMet) obj[newSecondaryLabel] = parseInt(item[args.secondaryMetric]) || 0;
             return [...agg, obj];
         }, []);
-        if (args.primaryTotals === 'cumulative' && args.secondaryTotals === 'cumulative') return setChartData(data);
-        if (args.primaryTotals === 'daily')
+        if (args.primaryTotals === 'Cumulative' && args.secondaryTotals === 'Cumulative') return setChartData(data);
+        if (args.primaryTotals === 'Daily')
             data = data.map((item, i, arr) => {
                 if (i === 0) return item;
                 const dailyDiff = item[newPrimaryLabel] - arr[i - 1][newPrimaryLabel];
                 return { ...item, [newPrimaryLabel]: dailyDiff > 0 ? dailyDiff : 0 };
             });
-        if (args.secondaryTotals === 'daily')
+        if (args.secondaryTotals === 'Daily')
             data = data.map((item, i, arr) => {
                 if (i === 0) return item;
                 const dailyDiff = item[newSecondaryLabel] - arr[i - 1][newSecondaryLabel];
@@ -127,7 +127,7 @@ const SecondPage = () => {
                 const arr = initialArr.map(item => {
                     const country = filterCountry(item['Country/Region']);
                     const province = filterProvince(item['Province/State']);
-                    return { date, country, province, Confirmed: item.Confirmed, Recovered: item.Recovered, deaths: item.Deaths };
+                    return { date, country, province, Confirmed: item.Confirmed, Recovered: item.Recovered, Deaths: item.Deaths };
                 });
                 allData.push(...arr);
                 setCovidData(agg => [...agg, ...arr]);
@@ -211,8 +211,18 @@ const SecondPage = () => {
 
     return (
         <Layout>
-            <SEO title="COVID-19 Graph" />
+            <SEO
+                title="Interactive Coronavirus Data Visualization"
+                description="An interactive coronavirus data visualization tool to compare the number of confirmed cases, recoveries, and deaths in different countries and states over time."
+            />
             <h1>Interactive Coronavirus Data Visualization</h1>
+            <p style={{ marginBottom: '40px' }}>
+                This tool was made to answer questions I had like, "<strong>How how has COVID-19 impacted the US vs Italy?</strong>", "
+                <strong>How many confirmed coronavirus cases have there been in my state so far?</strong>", and "
+                <strong>How many people have died from COVID-19 in China?</strong>". I knew other people would be curious about this information as well, so I
+                found a data source and distilled it all down into this easy to follow visual format. It's been very helpful for answering all of my own
+                questions. I hope it will be just as helpful in answering yours.
+            </p>
             {(chartData.length > 0 && (
                 <LineChart width={chartWidth} height={chartWidth / 2} data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Line dataKey={primaryLabel} stroke="rebeccapurple" dot={false} />
@@ -273,9 +283,9 @@ const SecondPage = () => {
                             <label htmlFor="primaryMetricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Metric:
                                 <select id="primaryMetricSelect" onChange={_handlePrimaryMetricChange}>
-                                    <option value="Confirmed">Confirmed</option>
-                                    <option value="Recovered">Recovered</option>
-                                    <option value="deaths">Deaths</option>
+                                    <option>Confirmed</option>
+                                    <option>Recovered</option>
+                                    <option>Deaths</option>
                                 </select>
                             </label>
                         </div>
@@ -283,8 +293,8 @@ const SecondPage = () => {
                             <label htmlFor="primaryTotalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Totals:
                                 <select id="primaryTotalsSelect" onChange={_handlePrimaryTotalsChange}>
-                                    <option value="daily">Daily</option>
-                                    <option value="cumulative">Cumulative</option>
+                                    <option>Daily</option>
+                                    <option>Cumulative</option>
                                 </select>
                             </label>
                         </div>
@@ -325,9 +335,9 @@ const SecondPage = () => {
                             <label htmlFor="secondaryMetricSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Metric:
                                 <select id="secondaryMetricSelect" onChange={_handleSecondaryMetricChange}>
-                                    <option value="Confirmed">Confirmed</option>
-                                    <option value="Recovered">Recovered</option>
-                                    <option value="deaths">Deaths</option>
+                                    <option>Confirmed</option>
+                                    <option>Recovered</option>
+                                    <option>Deaths</option>
                                 </select>
                             </label>
                         </div>
@@ -335,8 +345,8 @@ const SecondPage = () => {
                             <label htmlFor="secondaryTotalsSelect" style={{ display: 'flex', flexDirection: 'column' }}>
                                 Totals:
                                 <select id="secondaryTotalsSelect" onChange={_handleSecondaryTotalsChange}>
-                                    <option value="daily">Daily</option>
-                                    <option value="cumulative">Cumulative</option>
+                                    <option>Daily</option>
+                                    <option>Cumulative</option>
                                 </select>
                             </label>
                         </div>
