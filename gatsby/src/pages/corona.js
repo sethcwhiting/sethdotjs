@@ -125,8 +125,8 @@ const SecondPage = () => {
                 const text = await res.text();
                 const initialArr = await new Promise(resolve => parse(text, (err, data) => resolve(convertToArrayOfObjects(data))));
                 const arr = initialArr.map(item => {
-                    const country = filterCountry(item['Country/Region']);
-                    const province = filterProvince(item['Province/State']);
+                    const country = filterCountry(item['Country/Region'] || item.Country_Region);
+                    const province = filterProvince(item['Province/State'] || item.Province_State || '');
                     return { date, country, province, Confirmed: item.Confirmed, Recovered: item.Recovered, Deaths: item.Deaths };
                 });
                 allData.push(...arr);
