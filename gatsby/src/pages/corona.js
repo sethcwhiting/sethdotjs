@@ -103,7 +103,10 @@ const SecondPage = () => {
             data = data.map((item, i, arr) => {
                 if (i === 0) return item;
                 const dailyDiff = item[newPrimaryLabel] - arr[i - 1][newPrimaryLabel];
-                return { ...item, [newPrimaryLabel]: dailyDiff > 0 ? dailyDiff : 0 };
+                const prevDailyDiff = i > 1 ? arr[i - 1][newPrimaryLabel] - arr[i - 2][newPrimaryLabel] : 0;
+                const pctChange = Math.round(((dailyDiff - prevDailyDiff) / prevDailyDiff) * 100);
+                const pctString = pctChange > 0 ? ` (+${pctChange}%)` : ` (${pctChange}%)`;
+                return { ...item, [newPrimaryLabel]: dailyDiff > 0 ? dailyDiff : 0, change: pctString };
             });
         if (args.secondaryTotals === 'Daily')
             data = data.map((item, i, arr) => {
